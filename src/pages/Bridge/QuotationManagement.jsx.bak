@@ -1,0 +1,241 @@
+import React, { useState } from 'react';
+import { Plus, FileText, CheckCircle, XCircle } from 'lucide-react';
+import { useData } from '../../context/DataContext';
+import Button from '../../components/Common/Button';
+import LineItemManager from '../../components/Common/LineItemManager';
+import ServiceBreakdown from '../../components/Common/ServiceBreakdown';
+import { useNavigate } from 'react-router-dom';
+import { formatCurrency } from '../../utils/currencyFormatter';
+
+const QuotationManagement = () => {
+    const { quotations = [], addQuotation, confirmQuotation, bcCodes = [] } = useData();
+    const navigate = useNavigate();
+    const [showForm, setShowForm] = useState(false);
+
+    const [formData, setFormData] = useState({
+        customer: '',
+        type: 'inbound',
+        bcDocType: '',
+        origin: '',
+        destination: '',
+        items: [],
+        serviceBreakdown: {},
+        notes: ''
+    });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (formData.items.length === 0) {
+            alert('Please add at least one item');
+            return;
+        }
+
+        const serviceSubtotal = Object.values(formData.serviceBreakdown).reduce((sum, s) => sum + (s.total || 0), 0);
+        const serviceTax = serviceSubtotal * 0.11;
+        const serviceGrandTotal = serviceSubtotal + serviceTax;
+
+        const quotationData = {
+            ...formData,
+            date: new Date().toISOString().split('T')[0],
+            serviceSubtotal,
+            serviceTax,
+            serviceGrandTotal,
+            status: 'quotation'
+        };
+
+        addQuotation(quotationData);
+
+        setFormData({
+            customer: '',
+            type: 'inbound',
+            bcDocType: '',
+            origin: '',
+            destination: '',
+            items: [],
+            serviceBreakdown: {},
+            notes: ''
+        });
+
+        setShowForm(false);
+        alert('Quotation created successfully!');
+    };
+
+    const handleConfirm = (quotationId) => {
+        if (window.confirm('Confirm this quotation? This will trigger BC document submission.')) {
+            confirmQuotation(quotationId);
+            navigate('/bridge/customs-docs');
+        }
+    };
+
+    // Filter BC codes based on transaction type
+    const getFilteredBCCodes = () => {
+        return bcCodes.filter(bc =>
+            bc.isActive &&
+            (formData.type === 'inbound' ? bc.category === 'inbound' : bc.category === 'outbound')
+        );
+    };
+
+    const totalItems = formData.items.reduce((sum, item) => sum + item.quantity, 0);
+
+    return (
+        <div className="p-6 space-y-6">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold gradient-text">Quotations</h1>
+                    <p className="text-silver-dark mt-1">Sales Orders & Service Quotations</p>
+                </div>
+                <Button onClick={() => setShowForm(!showForm)} icon={Plus}>
+                    {showForm ? 'Cancel' : 'New Quotation'}
+                </Button>
+            </div>
+
+            {/* Form */}
+            {showForm && (
+                <form onSubmit={handleSubmit} className="glass-card p-6 rounded-lg space-y-6">
+                    <h3 className="text-lg font-semibold text-silver-light">New Quotation</h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-silver mb-2">Customer *</label>
+                            <input
+                                type="text"
+                                required
+                                value={formData.customer}
+                                onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
+                                placeholder="PT Exhibition Corp"
+                                className="w-full"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-silver mb-2">Type *</label>
+                            <select
+                                value={formData.type}
+                                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                                className="w-full"
+                            >
+                                <option value="inbound">Inbound (Import)</option>
+                                <option value="outbound">Outbound (Export)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-silver mb-2">Origin</label>
+                            <input
+                                type="text"
+                                value={formData.origin}
+                                onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
+                                placeholder="e.g., China, USA"
+                                className="w-full"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-silver mb-2">Destination</label>
+                            <input
+                                type="text"
+                                value={formData.destination}
+                                onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
+                                placeholder="e.g., Indonesia, Singapore"
+                                className="w-full"
+                            />
+                        </div>
+                    </div>
+
+                    <LineItemManager
+                        items={formData.items}
+                        onChange={(items) => setFormData({ ...formData, items })}
+                    />
+
+                    <ServiceBreakdown
+                        services={formData.serviceBreakdown}
+                        onChange={(services) => setFormData({ ...formData, serviceBreakdown: services })}
+                        totalItems={totalItems}
+                    />
+
+                    <div>
+                        <label className="block text-sm font-medium text-silver mb-2">Notes</label>
+                        <textarea
+                            value={formData.notes}
+                            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                            placeholder="Additional notes..."
+                            rows={3}
+                            className="w-full"
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-3">
+                        <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" icon={Plus}>
+                            Create Quotation
+                        </Button>
+                    </div>
+                </form>
+            )}
+
+            {/* Quotations List */}
+            <div className="glass-card p-6 rounded-lg">
+                <h3 className="text-xl font-semibold text-silver-light mb-4">Quotations List</h3>
+
+                {quotations.length === 0 ? (
+                    <div className="text-center py-8 text-silver-dark">
+                        <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>No quotations yet</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        {quotations.map(quot => (
+                            <div key={quot.id} className="p-4 bg-dark-surface rounded-lg">
+                                <div className="flex justify-between items-start mb-3">
+                                    <div>
+                                        <p className="font-semibold text-silver-light">{quot.id}</p>
+                                        <p className="text-sm text-silver-dark">
+                                            {quot.customer} • {quot.type} • {quot.items?.length || 0} items
+                                            {quot.bcDocType && ` • ${quot.bcDocType}`}
+                                        </p>
+                                        <p className="text-xs text-silver-dark mt-1">
+                                            {new Date(quot.date).toLocaleDateString('id-ID')}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-xl font-bold text-accent-green">
+                                            Rp {formatCurrency(quot.serviceGrandTotal)}
+                                        </p>
+                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 ${quot.status === 'confirmed' ? 'bg-green-500/20 text-green-400' :
+                                            'bg-blue-500/20 text-blue-400'
+                                            }`}>
+                                            {quot.status}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {quot.status === 'quotation' && (
+                                    <div className="flex gap-2 mt-3 pt-3 border-t border-dark-border">
+                                        <Button
+                                            size="sm"
+                                            icon={CheckCircle}
+                                            onClick={() => handleConfirm(quot.id)}
+                                        >
+                                            Confirm & Submit BC
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {quot.status === 'confirmed' && (
+                                    <div className="mt-3 pt-3 border-t border-dark-border text-sm text-silver-dark">
+                                        ✓ BC Document submitted. Check Customs Documents page for approval status.
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default QuotationManagement;
