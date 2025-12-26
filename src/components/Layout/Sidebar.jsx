@@ -45,9 +45,9 @@ const Sidebar = () => {
 
     const mainMenuItems = [
         { path: '/', label: 'Dashboard Bakhtera-1', icon: LayoutDashboard },
-        { path: '/blink', label: 'BLINK', subtitle: 'Management System', icon: Plane },
-        { path: '/big', label: 'BIG', subtitle: 'Penyelenggara Acara', icon: Calendar },
-        { path: '/bridge', label: 'BRIDGE', subtitle: 'Aset TPPB', icon: Building2 },
+        { path: '/blink', label: 'BLINK', subtitle: 'Freight & Forward Management', icon: Plane },
+        { path: '/big', label: 'BIG', subtitle: 'Event Organizer', icon: Calendar },
+        { path: '/bridge', label: 'BRIDGE', subtitle: 'Bounded Management', icon: Building2 },
         { path: '/pabean', label: 'Pabean', subtitle: 'Customs Portal', icon: Building2 },
     ];
 
@@ -128,22 +128,30 @@ const Sidebar = () => {
 
                                 return (
                                     <div key={item.path}>
-                                        <button
-                                            onClick={() => setExpandedSection(isExpanded ? '' : 'bridge')}
-                                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg smooth-transition ${isBridgeActive
-                                                ? 'bg-accent-blue bg-opacity-20 text-accent-blue'
-                                                : 'text-silver-dark hover:text-silver-light hover:bg-dark-surface'
-                                                }`}
-                                        >
-                                            <item.icon className="w-5 h-5 flex-shrink-0" />
-                                            <div className="flex-1 text-left">
-                                                <div className="font-medium">{item.label}</div>
-                                                <div className={`text-xs ${isBridgeActive ? 'text-accent-blue/70' : 'text-silver-dark'}`}>
-                                                    {item.subtitle}
+                                        <div className="flex items-center gap-1">
+                                            <Link
+                                                to={item.path}
+                                                onClick={() => isMobile && setIsOpen(false)}
+                                                className={`flex-1 flex items-center gap-3 px-4 py-3 rounded-lg smooth-transition ${isBridgeActive
+                                                    ? 'bg-accent-blue bg-opacity-20 text-accent-blue'
+                                                    : 'text-silver-dark hover:text-silver-light hover:bg-dark-surface'
+                                                    }`}
+                                            >
+                                                <item.icon className="w-5 h-5 flex-shrink-0" />
+                                                <div className="flex-1 text-left">
+                                                    <div className="font-medium">{item.label}</div>
+                                                    <div className={`text-xs ${isBridgeActive ? 'text-accent-blue/70' : 'text-silver-dark'}`}>
+                                                        {item.subtitle}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <ChevronRight className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-                                        </button>
+                                            </Link>
+                                            <button
+                                                onClick={() => setExpandedSection(isExpanded ? '' : 'bridge')}
+                                                className="p-2 hover:bg-dark-surface rounded-lg smooth-transition"
+                                            >
+                                                <ChevronRight className={`w-4 h-4 transition-transform text-silver-dark ${isExpanded ? 'rotate-90' : ''}`} />
+                                            </button>
+                                        </div>
 
                                         <AnimatePresence>
                                             {isExpanded && (

@@ -40,7 +40,7 @@ const BigDashboard = () => {
                         <Calendar className="w-10 h-10 text-green-400" />
                         <h1 className="text-4xl font-bold gradient-text">BIG</h1>
                     </div>
-                    <p className="text-silver-dark">Event Organizer Management</p>
+                    <p className="text-silver-dark">Event Organizer</p>
                 </div>
                 <Button onClick={() => navigate('/big/events')} icon={Plus}>
                     New Event
