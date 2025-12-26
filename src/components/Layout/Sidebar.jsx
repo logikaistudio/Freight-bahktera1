@@ -244,10 +244,18 @@ const Sidebar = () => {
             </nav>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-dark-border">
-                <p className="text-xs text-silver-dark text-center">
+            <div className="px-6 py-4 border-t border-dark-border text-center">
+                <p className="text-xs text-silver-dark mb-1">
                     © 2024 Bakhtera-1 • v1.0.0
                 </p>
+                <a
+                    href="https://logikai.studio"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] text-silver-dark/60 hover:text-accent-blue transition-colors uppercase tracking-widest font-medium"
+                >
+                    Powered by LogikAi.studio
+                </a>
             </div>
         </div>
     );
