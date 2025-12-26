@@ -44,6 +44,14 @@ const PengajuanManagement = () => {
         packages: [],
         documents: [],
         notes: '',
+        // BL and Invoice fields
+        blNumber: '',
+        blDate: '',
+        invoiceNumber: '',
+        invoiceValue: '',
+        invoiceCurrency: 'IDR',
+        exchangeRate: '',
+        exchangeRateDate: '',
         // Approval workflow fields
         documentStatus: 'pengajuan',
         bcDocumentNumber: '',
@@ -106,6 +114,13 @@ const PengajuanManagement = () => {
             packages: [],
             documents: [],
             notes: '',
+            blNumber: '',
+            blDate: '',
+            invoiceNumber: '',
+            invoiceValue: '',
+            invoiceCurrency: 'IDR',
+            exchangeRate: '',
+            exchangeRateDate: '',
             documentStatus: 'pengajuan',
             bcDocumentNumber: '',
             bcSupportingDocuments: [],
@@ -390,6 +405,94 @@ const PengajuanManagement = () => {
                                 placeholder="Negara/Kota tujuan"
                                 className="w-full"
                             />
+                        </div>
+                    </div>
+
+                    {/* BL & Invoice Information */}
+                    <div className="glass-card p-4 rounded-lg border-2 border-accent-green bg-accent-green/10">
+                        <h4 className="text-sm font-semibold text-silver-light mb-3">📄 Informasi BL & Invoice</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-silver mb-2">No. BL</label>
+                                <input
+                                    type="text"
+                                    value={formData.blNumber}
+                                    onChange={(e) => setFormData({ ...formData, blNumber: e.target.value })}
+                                    placeholder="Bill of Lading Number"
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-silver mb-2">Tanggal BL</label>
+                                <input
+                                    type="date"
+                                    value={formData.blDate}
+                                    onChange={(e) => setFormData({ ...formData, blDate: e.target.value })}
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-silver mb-2">No. Invoice</label>
+                                <input
+                                    type="text"
+                                    value={formData.invoiceNumber}
+                                    onChange={(e) => setFormData({ ...formData, invoiceNumber: e.target.value })}
+                                    placeholder="Invoice Number"
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-silver mb-2">Nilai Invoice</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={formData.invoiceValue}
+                                    onChange={(e) => setFormData({ ...formData, invoiceValue: e.target.value })}
+                                    placeholder="0.00"
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-silver mb-2">Kurs</label>
+                                <select
+                                    value={formData.invoiceCurrency}
+                                    onChange={(e) => setFormData({ ...formData, invoiceCurrency: e.target.value })}
+                                    className="w-full"
+                                >
+                                    <option value="IDR">IDR - Rupiah</option>
+                                    <option value="USD">USD - US Dollar</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                    <option value="SGD">SGD - Singapore Dollar</option>
+                                    <option value="JPY">JPY - Japanese Yen</option>
+                                    <option value="CNY">CNY - Chinese Yuan</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-silver mb-2">Rate Kurs</label>
+                                <input
+                                    type="number"
+                                    step="0.0001"
+                                    value={formData.exchangeRate}
+                                    onChange={(e) => setFormData({ ...formData, exchangeRate: e.target.value })}
+                                    placeholder="1.0000"
+                                    className="w-full"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-silver mb-2">Tanggal Rate Kurs</label>
+                                <input
+                                    type="date"
+                                    value={formData.exchangeRateDate}
+                                    onChange={(e) => setFormData({ ...formData, exchangeRateDate: e.target.value })}
+                                    className="w-full"
+                                />
+                            </div>
                         </div>
                     </div>
 
