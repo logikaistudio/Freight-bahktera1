@@ -209,12 +209,15 @@ const BCMaster = () => {
                                 <th className="px-4 py-3 text-left text-sm font-semibold text-white">Kategori</th>
                                 <th className="px-4 py-3 text-left text-sm font-semibold text-white">Deskripsi</th>
                                 <th className="px-4 py-3 text-center text-sm font-semibold text-white">Status</th>
-                                <th className="px-4 py-3 text-center text-sm font-semibold text-white">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-dark-border">
                             {bcCodes.map(bc => (
-                                <tr key={bc.id} className="hover:bg-dark-surface smooth-transition">
+                                <tr
+                                    key={bc.id}
+                                    className="hover:bg-dark-surface smooth-transition cursor-pointer"
+                                    onClick={() => handleEdit(bc)}
+                                >
                                     <td className="px-4 py-3 text-sm font-bold text-accent-blue">{bc.code}</td>
                                     <td className="px-4 py-3 text-sm text-silver-light font-medium">{bc.name}</td>
                                     <td className="px-4 py-3">
@@ -228,22 +231,6 @@ const BCMaster = () => {
                                             }`}>
                                             {bc.isActive ? 'Aktif' : 'Tidak Aktif'}
                                         </span>
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <button
-                                                onClick={() => handleEdit(bc)}
-                                                className="p-1 hover:bg-accent-blue hover:bg-opacity-20 rounded smooth-transition"
-                                            >
-                                                <Edit2 className="w-4 h-4 text-accent-blue" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleRemove(bc.id)}
-                                                className="p-1 hover:bg-red-500 hover:bg-opacity-20 rounded smooth-transition"
-                                            >
-                                                <Trash2 className="w-4 h-4 text-red-400" />
-                                            </button>
-                                        </div>
                                     </td>
                                 </tr>
                             ))}
