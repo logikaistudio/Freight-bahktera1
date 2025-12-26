@@ -605,8 +605,8 @@ export const DataProvider = ({ children }) => {
                 if (!rejError) setRejectTransactions(rejData || []);
 
                 // Load Supporting Data
-                const savedInspections = localStorage.getItem('freight_inspections');
-                if (savedInspections) setInspections(JSON.parse(savedInspections));
+                const { data: inspData, error: inspError } = await supabase.from('freight_inspections').select('*');
+                if (!inspError) setInspections(inspData || []);
 
                 const { data: custDocData, error: custDocError } = await supabase.from('freight_customs').select('*');
                 if (!custDocError) setCustomsDocuments(custDocData || []);
@@ -621,8 +621,21 @@ export const DataProvider = ({ children }) => {
                 const { data: purData, error: purError } = await supabase.from('freight_purchases').select('*');
                 if (!purError) setPurchases(purData || []);
 
-                const savedEvents = localStorage.getItem('freight_events');
-                if (savedEvents) setEvents(JSON.parse(savedEvents));
+                const { data: finData, error: finError } = await supabase.from('freight_finance').select('*');
+                if (!finError) setFinance(finData || []);
+
+                // Load Module Data
+                const { data: shipData, error: shipError } = await supabase.from('freight_shipments').select('*');
+                if (!shipError) setShipments(shipData || []);
+
+                const { data: assetData, error: assetError } = await supabase.from('freight_assets').select('*');
+                if (!assetError) setAssets(assetData || []);
+
+                const { data: eventData, error: eventError } = await supabase.from('freight_events').select('*');
+                if (!eventError) setEvents(eventData || []);
+
+                const { data: moveData, error: moveError } = await supabase.from('freight_movements').select('*');
+                if (!moveError) setGoodsMovements(moveData || []);
 
             } catch (error) {
                 console.error("Failed to load data from Supabase:", error);
@@ -691,6 +704,54 @@ export const DataProvider = ({ children }) => {
                 else if (payload.eventType === 'UPDATE') setCustomsDocuments(prev => prev.map(item => item.id === payload.new.id ? payload.new : item));
                 else if (payload.eventType === 'DELETE') setCustomsDocuments(prev => prev.filter(item => item.id !== payload.old.id));
             })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'freight_finance' }, (payload) => {
+                console.log('⚡ Realtime Finance Update:', payload);
+                if (payload.eventType === 'INSERT') setFinance(prev => [...prev, payload.new]);
+                else if (payload.eventType === 'UPDATE') setFinance(prev => prev.map(item => item.id === payload.new.id ? payload.new : item));
+                else if (payload.eventType === 'DELETE') setFinance(prev => prev.filter(item => item.id !== payload.old.id));
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'freight_shipments' }, (payload) => {
+                console.log('⚡ Realtime Shipment Update:', payload);
+                if (payload.eventType === 'INSERT') setShipments(prev => [...prev, payload.new]);
+                else if (payload.eventType === 'UPDATE') setShipments(prev => prev.map(item => item.id === payload.new.id ? payload.new : item));
+                else if (payload.eventType === 'DELETE') setShipments(prev => prev.filter(item => item.id !== payload.old.id));
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'freight_assets' }, (payload) => {
+                console.log('⚡ Realtime Asset Update:', payload);
+                if (payload.eventType === 'INSERT') setAssets(prev => [...prev, payload.new]);
+                else if (payload.eventType === 'UPDATE') setAssets(prev => prev.map(item => item.id === payload.new.id ? payload.new : item));
+                else if (payload.eventType === 'DELETE') setAssets(prev => prev.filter(item => item.id !== payload.old.id));
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'freight_events' }, (payload) => {
+                console.log('⚡ Realtime Event Update:', payload);
+                if (payload.eventType === 'INSERT') setEvents(prev => [...prev, payload.new]);
+                else if (payload.eventType === 'UPDATE') setEvents(prev => prev.map(item => item.id === payload.new.id ? payload.new : item));
+                else if (payload.eventType === 'DELETE') setEvents(prev => prev.filter(item => item.id !== payload.old.id));
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'freight_movements' }, (payload) => {
+                console.log('⚡ Realtime Movement Update:', payload);
+                if (payload.eventType === 'INSERT') setGoodsMovements(prev => [...prev, payload.new]);
+                else if (payload.eventType === 'UPDATE') setGoodsMovements(prev => prev.map(item => item.id === payload.new.id ? payload.new : item));
+                else if (payload.eventType === 'DELETE') setGoodsMovements(prev => prev.filter(item => item.id !== payload.old.id));
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'freight_inspections' }, (payload) => {
+                console.log('⚡ Realtime Inspection Update:', payload);
+                if (payload.eventType === 'INSERT') setInspections(prev => [...prev, payload.new]);
+                else if (payload.eventType === 'UPDATE') setInspections(prev => prev.map(item => item.id === payload.new.id ? payload.new : item));
+                else if (payload.eventType === 'DELETE') setInspections(prev => prev.filter(item => item.id !== payload.old.id));
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'freight_invoices' }, (payload) => {
+                console.log('⚡ Realtime Invoice Update:', payload);
+                if (payload.eventType === 'INSERT') setInvoices(prev => [...prev, payload.new]);
+                else if (payload.eventType === 'UPDATE') setInvoices(prev => prev.map(item => item.id === payload.new.id ? payload.new : item));
+                else if (payload.eventType === 'DELETE') setInvoices(prev => prev.filter(item => item.id !== payload.old.id));
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'freight_purchases' }, (payload) => {
+                console.log('⚡ Realtime Purchase Update:', payload);
+                if (payload.eventType === 'INSERT') setPurchases(prev => [...prev, payload.new]);
+                else if (payload.eventType === 'UPDATE') setPurchases(prev => prev.map(item => item.id === payload.new.id ? payload.new : item));
+                else if (payload.eventType === 'DELETE') setPurchases(prev => prev.filter(item => item.id !== payload.old.id));
+            })
             .subscribe();
 
         return () => {
@@ -718,92 +779,10 @@ export const DataProvider = ({ children }) => {
         localStorage.setItem('freight_customers', JSON.stringify(customers));
     }, [customers]);
     */
-    useEffect(() => {
-        localStorage.setItem('freight_finance', JSON.stringify(finance));
-    }, [finance]);
 
-    useEffect(() => {
-        localStorage.setItem('freight_shipments', JSON.stringify(shipments));
-    }, [shipments]);
-
-    useEffect(() => {
-        localStorage.setItem('freight_assets', JSON.stringify(assets));
-    }, [assets]);
-
-    useEffect(() => {
-        localStorage.setItem('freight_events', JSON.stringify(events));
-    }, [events]);
-
-    useEffect(() => {
-        localStorage.setItem('freight_inbound', JSON.stringify(inboundTransactions));
-    }, [inboundTransactions]);
-
-    useEffect(() => {
-        localStorage.setItem('freight_outbound', JSON.stringify(outboundTransactions));
-    }, [outboundTransactions]);
-
-    useEffect(() => {
-        localStorage.setItem('freight_reject', JSON.stringify(rejectTransactions));
-    }, [rejectTransactions]);
-    // Save quotations to localStorage
-    useEffect(() => {
-        console.log('💾 Saving quotations to localStorage:', quotations);
-        localStorage.setItem('freight_quotations', JSON.stringify(quotations));
-    }, [quotations]);
-
-    // Save goodsMovements to localStorage
-    useEffect(() => {
-        localStorage.setItem('freight_movements', JSON.stringify(goodsMovements));
-    }, [goodsMovements]);
-
-    // Save inspections to localStorage
-    useEffect(() => {
-        localStorage.setItem('freight_inspections', JSON.stringify(inspections));
-    }, [inspections]);
-
-
-    useEffect(() => {
-        localStorage.setItem('freight_warehouse', JSON.stringify(warehouseInventory));
-    }, [warehouseInventory]);
-
-    useEffect(() => {
-        localStorage.setItem('freight_mutation_logs', JSON.stringify(mutationLogs));
-    }, [mutationLogs]);
-
-    useEffect(() => {
-        localStorage.setItem('freight_customs', JSON.stringify(customsDocuments));
-    }, [customsDocuments]);
-
-    useEffect(() => {
-        console.log('💾 Saving quotations to localStorage:', quotations);
-        localStorage.setItem('freight_quotations', JSON.stringify(quotations));
-    }, [quotations]);
-
-
-    // Sample data now defined in initial state above (QT-2025-001 and QT-2025-002)
-    // Removed auto-generation to prevent duplicate sample data
-
-    useEffect(() => {
-        localStorage.setItem('freight_movements', JSON.stringify(goodsMovements));
-    }, [goodsMovements]);
-
-    useEffect(() => {
-        localStorage.setItem('freight_inspections', JSON.stringify(inspections));
-    }, [inspections]);
-
-    /*
-    useEffect(() => {
-        localStorage.setItem('freight_bc_codes', JSON.stringify(bcCodes));
-    }, [bcCodes]);
-
-    useEffect(() => {
-        localStorage.setItem('freight_invoices', JSON.stringify(invoices));
-    }, [invoices]);
-
-    useEffect(() => {
-        localStorage.setItem('freight_purchases', JSON.stringify(purchases));
-    }, [purchases]);
-    */
+    // ========================================
+    // localStorage removed - all data now persisted to Supabase only
+    // ========================================
 
     // Vendor CRUD operations
     const addVendor = async (vendor) => {
@@ -898,79 +877,147 @@ export const DataProvider = ({ children }) => {
     };
 
     // Finance CRUD operations
-    const addFinanceTransaction = (transaction) => {
+    const addFinanceTransaction = async (transaction) => {
         const newTransaction = {
             ...transaction,
             id: Date.now().toString(),
-            createdAt: new Date().toISOString(),
+            created_at: new Date().toISOString(),
         };
-        setFinance([...finance, newTransaction]);
+
+        const { error } = await supabase.from('freight_finance').insert([newTransaction]);
+        if (error) {
+            console.error('Error adding finance transaction:', error);
+            return;
+        }
+
+        setFinance(prev => [...prev, newTransaction]);
         return newTransaction;
     };
 
-    const updateFinanceTransaction = (id, updatedTransaction) => {
-        setFinance(finance.map(t => t.id === id ? { ...t, ...updatedTransaction } : t));
+    const updateFinanceTransaction = async (id, updatedTransaction) => {
+        const { error } = await supabase.from('freight_finance').update(updatedTransaction).eq('id', id);
+        if (error) {
+            console.error('Error updating finance transaction:', error);
+            return;
+        }
+        setFinance(prev => prev.map(t => t.id === id ? { ...t, ...updatedTransaction } : t));
     };
 
-    const deleteFinanceTransaction = (id) => {
-        setFinance(finance.filter(t => t.id !== id));
+    const deleteFinanceTransaction = async (id) => {
+        const { error } = await supabase.from('freight_finance').delete().eq('id', id);
+        if (error) {
+            console.error('Error deleting finance transaction:', error);
+            return;
+        }
+        setFinance(prev => prev.filter(t => t.id !== id));
     };
 
     // Shipment CRUD operations (Blink module)
-    const addShipment = (shipment) => {
+    const addShipment = async (shipment) => {
         const newShipment = {
             ...shipment,
             id: Date.now().toString(),
-            createdAt: new Date().toISOString(),
+            created_at: new Date().toISOString(),
         };
-        setShipments([...shipments, newShipment]);
+
+        const { error } = await supabase.from('freight_shipments').insert([newShipment]);
+        if (error) {
+            console.error('Error adding shipment:', error);
+            return;
+        }
+
+        setShipments(prev => [...prev, newShipment]);
         return newShipment;
     };
 
-    const updateShipment = (id, updatedShipment) => {
-        setShipments(shipments.map(s => s.id === id ? { ...s, ...updatedShipment } : s));
+    const updateShipment = async (id, updatedShipment) => {
+        const { error } = await supabase.from('freight_shipments').update(updatedShipment).eq('id', id);
+        if (error) {
+            console.error('Error updating shipment:', error);
+            return;
+        }
+        setShipments(prev => prev.map(s => s.id === id ? { ...s, ...updatedShipment } : s));
     };
 
-    const deleteShipment = (id) => {
-        setShipments(shipments.filter(s => s.id !== id));
+    const deleteShipment = async (id) => {
+        const { error } = await supabase.from('freight_shipments').delete().eq('id', id);
+        if (error) {
+            console.error('Error deleting shipment:', error);
+            return;
+        }
+        setShipments(prev => prev.filter(s => s.id !== id));
     };
 
     // Asset CRUD operations (Bridge module)
-    const addAsset = (asset) => {
+    const addAsset = async (asset) => {
         const newAsset = {
             ...asset,
             id: Date.now().toString(),
-            createdAt: new Date().toISOString(),
+            created_at: new Date().toISOString(),
         };
-        setAssets([...assets, newAsset]);
+
+        const { error } = await supabase.from('freight_assets').insert([newAsset]);
+        if (error) {
+            console.error('Error adding asset:', error);
+            return;
+        }
+
+        setAssets(prev => [...prev, newAsset]);
         return newAsset;
     };
 
-    const updateAsset = (id, updatedAsset) => {
-        setAssets(assets.map(a => a.id === id ? { ...a, ...updatedAsset } : a));
+    const updateAsset = async (id, updatedAsset) => {
+        const { error } = await supabase.from('freight_assets').update(updatedAsset).eq('id', id);
+        if (error) {
+            console.error('Error updating asset:', error);
+            return;
+        }
+        setAssets(prev => prev.map(a => a.id === id ? { ...a, ...updatedAsset } : a));
     };
 
-    const deleteAsset = (id) => {
-        setAssets(assets.filter(a => a.id !== id));
+    const deleteAsset = async (id) => {
+        const { error } = await supabase.from('freight_assets').delete().eq('id', id);
+        if (error) {
+            console.error('Error deleting asset:', error);
+            return;
+        }
+        setAssets(prev => prev.filter(a => a.id !== id));
     };
 
     // Event CRUD operations (Big module)
-    const addEvent = (event) => {
+    const addEvent = async (event) => {
         const newEvent = {
             ...event,
             id: Date.now().toString(),
-            createdAt: new Date().toISOString(),
+            created_at: new Date().toISOString(),
         };
-        setEvents([...events, newEvent]);
+
+        const { error } = await supabase.from('freight_events').insert([newEvent]);
+        if (error) {
+            console.error('Error adding event:', error);
+            return;
+        }
+
+        setEvents(prev => [...prev, newEvent]);
         return newEvent;
     };
 
-    const updateEvent = (id, updatedEvent) => {
-        setEvents(events.map(e => e.id === id ? { ...e, ...updatedEvent } : e));
+    const updateEvent = async (id, updatedEvent) => {
+        const { error } = await supabase.from('freight_events').update(updatedEvent).eq('id', id);
+        if (error) {
+            console.error('Error updating event:', error);
+            return;
+        }
+        setEvents(prev => prev.map(e => e.id === id ? { ...e, ...updatedEvent } : e));
     };
 
-    const deleteEvent = (id) => {
-        setEvents(events.filter(e => e.id !== id));
+    const deleteEvent = async (id) => {
+        const { error } = await supabase.from('freight_events').delete().eq('id', id);
+        if (error) {
+            console.error('Error deleting event:', error);
+            return;
+        }
+        setEvents(prev => prev.filter(e => e.id !== id));
     };
 
     // Inbound Transaction operations (Bridge TPPB)
