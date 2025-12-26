@@ -539,6 +539,7 @@ export const DataProvider = ({ children }) => {
     // Finance module data
     const [invoices, setInvoices] = useState([]);
     const [purchases, setPurchases] = useState([]);
+    const [purchaseOrders, setPurchaseOrders] = useState([]);
     const [payroll, setPayroll] = useState([]);
     const [leads, setLeads] = useState([]);
 
@@ -1867,6 +1868,29 @@ export const DataProvider = ({ children }) => {
         setPurchases(prev => prev.filter(pur => pur.id !== purchaseId));
     };
 
+    // Purchase Order CRUD operations
+    const addPurchaseOrder = (poData) => {
+        const newPO = {
+            ...poData,
+            id: `PO-${Date.now()}`,
+            poNumber: `PO-${new Date().getFullYear()}-${String(purchaseOrders.length + 1).padStart(4, '0')}`,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+        setPurchaseOrders(prev => [...prev, newPO]);
+        return newPO;
+    };
+
+    const updatePurchaseOrder = (poId, updates) => {
+        setPurchaseOrders(prev => prev.map(po =>
+            po.id === poId ? { ...po, ...updates, updated_at: new Date().toISOString() } : po
+        ));
+    };
+
+    const deletePurchaseOrder = (poId) => {
+        setPurchaseOrders(prev => prev.filter(po => po.id !== poId));
+    };
+
     const value = {
         // Centralized data
         vendors,
@@ -1973,6 +1997,12 @@ export const DataProvider = ({ children }) => {
         addPurchase,
         updatePurchase,
         deletePurchase,
+
+        // Purchase Order operations
+        purchaseOrders,
+        addPurchaseOrder,
+        updatePurchaseOrder,
+        deletePurchaseOrder,
 
         // Item Master operations
         addItemCode,

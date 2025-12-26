@@ -6,12 +6,14 @@ import LineItemManager from '../../components/Common/LineItemManager';
 import ServiceBreakdown from '../../components/Common/ServiceBreakdown';
 import CustomCostsManager from '../../components/Common/CustomCostsManager';
 import QuotationSummary from '../../components/Common/QuotationSummary';
+import POFormModal from '../../components/Finance/POFormModal';
 import { formatCurrency } from '../../utils/currencyFormatter';
 
 const BridgeFinance = () => {
     const {
         invoices = [],
         purchases = [],
+        purchaseOrders = [],
         customers = [],
         vendors = [],
         customsDocuments = [],
@@ -20,6 +22,9 @@ const BridgeFinance = () => {
         updateInvoice,
         addPurchase,
         updatePurchase,
+        addPurchaseOrder,
+        updatePurchaseOrder,
+        deletePurchaseOrder,
         getApprovedPengajuan,
         getActiveCustomers,
         getActiveVendors
@@ -28,6 +33,7 @@ const BridgeFinance = () => {
     const [activeTab, setActiveTab] = useState('invoices');
     const [showInvoiceForm, setShowInvoiceForm] = useState(false);
     const [showPurchaseForm, setShowPurchaseForm] = useState(false);
+    const [showPOForm, setShowPOForm] = useState(false);
     const [editingInvoice, setEditingInvoice] = useState(null);
     const [editingPurchase, setEditingPurchase] = useState(null);
 
@@ -146,14 +152,27 @@ const BridgeFinance = () => {
                 >
                     Purchases ({purchases.length})
                 </button>
+                <button
+                    onClick={() => setActiveTab('pos')}
+                    className={`px-4 py-2 rounded-lg font-medium smooth-transition ${activeTab === 'pos'
+                        ? 'bg-accent-purple text-white'
+                        : 'bg-dark-surface text-silver-dark hover:text-silver'
+                        }`}
+                >
+                    Purchase Orders ({purchaseOrders.length})
+                </button>
 
                 {activeTab === 'invoices' ? (
                     <Button onClick={handleAddInvoice} icon={Plus} size="sm" className="ml-auto">
                         Buat Invoice
                     </Button>
-                ) : (
+                ) : activeTab === 'purchases' ? (
                     <Button onClick={handleAddPurchase} icon={Plus} size="sm" className="ml-auto">
                         Buat Purchase
+                    </Button>
+                ) : (
+                    <Button onClick={() => setShowPOForm(true)} icon={Plus} size="sm" className="ml-auto">
+                        Buat PO
                     </Button>
                 )}
             </div>
@@ -239,7 +258,7 @@ const BridgeFinance = () => {
                             </div>
                         )}
                     </>
-                ) : (
+                ) : activeTab === 'purchases' ? (
                     <>
                         <h3 className="text-xl font-semibold text-silver-light mb-4">
                             Daftar Purchase/Pembayaran
@@ -310,7 +329,79 @@ const BridgeFinance = () => {
                             </div>
                         )}
                     </>
-                )}
+                ) : activeTab === 'pos' ? (
+                    <>
+                        <h3 className="text-xl font-semibold text-silver-light mb-4">
+                            Daftar Purchase Orders
+                        </h3>
+
+                        {purchaseOrders.length === 0 ? (
+                            <div className="text-center py-8 text-silver-dark">
+                                <FileText className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                                <p>Belum ada Purchase Order. Klik "Buat PO" untuk memulai.</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead className="bg-accent-purple">
+                                        <tr>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-white">No. PO</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-white">Vendor</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-white">NPWP</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-white">Tanggal</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-white">Judul</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-white">Items</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-white">Total</th>
+                                            <th className="px-4 py-3 text-left text-sm font-semibold text-white">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-dark-border">
+                                        {purchaseOrders.map(po => {
+                                            const statusColors = {
+                                                draft: 'bg-yellow-500/20 text-yellow-400',
+                                                sent: 'bg-blue-500/20 text-blue-400',
+                                                approved: 'bg-green-500/20 text-green-400',
+                                                received: 'bg-emerald-500/20 text-emerald-400',
+                                                cancelled: 'bg-red-500/20 text-red-400'
+                                            };
+
+                                            return (
+                                                <tr key={po.id} className="hover:bg-dark-surface smooth-transition">
+                                                    <td className="px-4 py-3 text-sm text-silver-light font-medium">
+                                                        {po.poNumber}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-silver">
+                                                        {po.vendorName}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-silver-dark font-mono text-xs">
+                                                        {po.vendorNPWP || '-'}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-silver-dark">
+                                                        {new Date(po.poDate).toLocaleDateString('id-ID')}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-silver">
+                                                        {po.title}
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-silver-dark">
+                                                        {po.items?.length || 0} item(s)
+                                                    </td>
+                                                    <td className="px-4 py-3 text-sm text-accent-purple font-semibold">
+                                                        Rp {formatCurrency(po.grandTotal)}
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColors[po.status] || statusColors.draft}`}>
+                                                            {po.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </>
+                ) : null}
             </div>
 
             {/* Invoice Form Modal */}
@@ -328,6 +419,15 @@ const BridgeFinance = () => {
                 <PurchaseFormModal
                     onClose={() => setShowPurchaseForm(false)}
                     onSubmit={addPurchase}
+                    vendors={vendors}
+                />
+            )}
+
+            {/* Purchase Order Form Modal */}
+            {showPOForm && (
+                <POFormModal
+                    onClose={() => setShowPOForm(false)}
+                    onSubmit={addPurchaseOrder}
                     vendors={vendors}
                 />
             )}
