@@ -219,17 +219,12 @@ const WarehouseInventory = () => {
                     <table className="w-full">
                         <thead className="bg-accent-blue">
                             <tr>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">No. Pendaftaran</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">Kode Barang</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">No. Dokumen</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">Jumlah Package Masuk</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">Jumlah Item Masuk</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">Jumlah Package Keluar</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">Jumlah Item Keluar</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">Tanggal Masuk</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">Tanggal Keluar</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">Lokasi</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold text-white">Keterangan</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-white">Tanggal Masuk</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-white">Total Package Masuk</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-white">Total Item Masuk</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-white">Tanggal Keluar</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-white">Total Package Keluar</th>
+                                <th className="px-4 py-3 text-center text-sm font-semibold text-white">Total Item Keluar</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-dark-border">
@@ -239,51 +234,33 @@ const WarehouseInventory = () => {
                                 const uniquePackages = [...new Set(pengajuanItems.map(i => i.packageNumber))];
                                 const totalItems = pengajuanItems.length;
 
+                                // Calculate outbound quantities
+                                const outboundItems = pengajuanItems.filter(i => i.exitDate || (i.movements && i.movements.some(m => m.movementType === 'out')));
+                                const outboundPackages = [...new Set(outboundItems.map(i => i.packageNumber))];
+
                                 return (
                                     <tr
                                         key={item.pengajuanId || item.id}
                                         className="hover:bg-dark-surface smooth-transition cursor-pointer"
                                         onClick={(e) => handleRowClick(item, e)}
                                     >
-                                        <td className="px-4 py-3 text-sm text-silver-light font-medium">
-                                            {item.pengajuanNumber || item.pengajuanId || '-'}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-silver-light font-mono text-xs">
-                                            {item.itemCode || '-'}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-accent-blue font-medium">
-                                            {item.bcDocumentNumber || '-'}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-silver text-center">
-                                            {uniquePackages.length}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-silver text-center">
-                                            {totalItems}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-silver-dark text-center">
-                                            {(() => {
-                                                const outboundItems = pengajuanItems.filter(i => i.exitDate || (i.movements && i.movements.some(m => m.movementType === 'out')));
-                                                const outboundPackages = [...new Set(outboundItems.map(i => i.packageNumber))];
-                                                return outboundPackages.length;
-                                            })()}
-                                        </td>
-                                        <td className="px-4 py-3 text-sm text-silver-dark text-center">
-                                            {(() => {
-                                                const outboundItems = pengajuanItems.filter(i => i.exitDate || (i.movements && i.movements.some(m => m.movementType === 'out')));
-                                                return outboundItems.length;
-                                            })()}
-                                        </td>
                                         <td className="px-4 py-3 text-sm text-silver text-center">
                                             {new Date(item.submissionDate || item.entryDate).toLocaleDateString('id-ID')}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-accent-blue font-semibold text-center">
+                                            {uniquePackages.length}
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-accent-blue font-semibold text-center">
+                                            {totalItems}
                                         </td>
                                         <td className="px-4 py-3 text-sm text-silver text-center">
                                             {item.exitDate ? new Date(item.exitDate).toLocaleDateString('id-ID') : '-'}
                                         </td>
-                                        <td className="px-4 py-3 text-sm text-silver">
-                                            {item.location?.room || '-'} / {item.location?.rack || '-'} / {item.location?.slot || '-'}
+                                        <td className="px-4 py-3 text-sm text-orange-400 font-semibold text-center">
+                                            {outboundPackages.length}
                                         </td>
-                                        <td className="px-4 py-3 text-sm text-silver-dark max-w-xs truncate">
-                                            {item.remarks || item.notes || '-'}
+                                        <td className="px-4 py-3 text-sm text-orange-400 font-semibold text-center">
+                                            {outboundItems.length}
                                         </td>
                                     </tr>
                                 );
