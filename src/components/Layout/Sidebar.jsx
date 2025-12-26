@@ -45,9 +45,9 @@ const Sidebar = () => {
 
     const mainMenuItems = [
         { path: '/', label: 'Dasbor Bakhtera-1', icon: LayoutDashboard },
-        { path: '/blink', label: 'Blink', subtitle: 'Management System', icon: Plane },
-        { path: '/big', label: 'Big', subtitle: 'Penyelenggara Acara', icon: Calendar },
-        { path: '/bridge', label: 'Bridge', subtitle: 'Aset TPPB', icon: Building2 },
+        { path: '/blink', label: 'BLINK', subtitle: 'Management System', icon: Plane },
+        { path: '/big', label: 'BIG', subtitle: 'Penyelenggara Acara', icon: Calendar },
+        { path: '/bridge', label: 'BRIDGE', subtitle: 'Aset TPPB', icon: Building2 },
         { path: '/pabean', label: 'Pabean', subtitle: 'Customs Portal', icon: Building2 },
     ];
 
